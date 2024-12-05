@@ -2,20 +2,86 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+.main-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.car-ui-container {
+  width: 1080px;
+  background: lightslategray;
+  border-radius: 10px;
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+.top-container, .guages-container, .middle-container, .bottom-container {
+  min-height: 100px;
+  display: flex;
+}
+
+.top-container, .middle-container {
+  background: lightgray;
+}
+
+.top-container {
+  min-height: unset;
+  padding: 25px 0px;
+  border-radius: 10px 10px 0 0;
+}
+
+.indicator svg {
+  font-size: 30px;
+}
+
+.indicator {
+  min-width: 75px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.guages-container {
+  justify-content: space-around;
+  padding: 25px 0;
+}
+
+.middle-container {
+  justify-content: space-between;
+}
+
+.meter {
+  min-width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bottom-container {
+  justify-content: space-between;
+  display: flex;
+  padding: 10px;
+}
+
+.btn {
+  min-width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid lightgray;
+  border-radius: 10px;
+}
+
+.btn svg, .meter svg {
+  font-size: 40px;
+}
+
+.gear-motor-temp.btn {
+  padding: 0 10px;
+}
+
+.motor-speed.meter {
+  min-width: 350px;
+  padding: 25px;
 }
