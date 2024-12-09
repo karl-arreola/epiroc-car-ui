@@ -2,20 +2,25 @@ import CarUI from "@/components/car-ui/CarUI";
 
 export default async function Home() {
   let currentCar;
+  let currentCarInitiated = false;
+
   const getCar = async() => {
     try {
-      const resUser = await fetch(process.env.NEXT_PUBLIC_URL + "/api/car");
+      const resCar = await fetch(process.env.NEXT_PUBLIC_URL + "/api/car");
 
-      const {car} = await resUser.json();
+      const {car} = await resCar.json();
 
-      currentCar = car;
+      if(car) {
+        currentCar = car;
+        currentCarInitiated = true;
+      }
     } catch (error) {
-      console.log("Error while getting user: ", error);
+      console.log("Error while getting car: ", error);
     }
   }
   await getCar();
 
-  if(currentCar) {
+  if(currentCarInitiated) {
     return (
       <main>
         <CarUI data={currentCar}/>
