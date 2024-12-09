@@ -1,8 +1,10 @@
 import CarUI from "@/components/car-ui/CarUI";
+import { headers } from 'next/headers';
 
 export default async function Home() {
   let currentCar;
   let currentCarInitiated = false;
+  const headersList = headers();
 
   const getCar = async() => {
     try {

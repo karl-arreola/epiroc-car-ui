@@ -14,17 +14,13 @@ import PowerIcon from '@mui/icons-material/Power';
 import Slider from '@mui/material/Slider';
 import GaugeComponent from 'react-gauge-component';
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import ReplayIcon from '@mui/icons-material/Replay';
 
 export default function CarUI(data) {
-  const router = useRouter();
   let carData = data.data;
   const [parkingBreakOn, setParkingBreakOn] = useState(carData.parkingBreakOn);
   const [checkEngineOn, setCheckEngineOn] = useState(carData.checkEngineOn);
   const [powerInOut, setPowerInOut] = useState(0);
   const [motorRPM, setMotorRPM] = useState(0);
-  let powerInOutTemp = carData.powerInOut;
   let motorRPMTemp = 0;
   const [batteryPercentage, setBatteryPercentage] = useState(carData.batteryPercentage);
   let batteryPercentageTemp = carData.batteryPercentage;
