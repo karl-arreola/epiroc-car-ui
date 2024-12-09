@@ -22,24 +22,25 @@ export default function CarUI(data) {
   let carData = data.data;
   const [parkingBreakOn, setParkingBreakOn] = useState(carData.parkingBreakOn);
   const [checkEngineOn, setCheckEngineOn] = useState(carData.checkEngineOn);
-  const [motorHighSpeedOn, setMotorHighSpeedOn] = useState(carData.motorHighSpeedOn);
-  const [powerInOut, setPowerInOut] = useState(carData.powerInOut);
-  const [motorRPM, setMotorRPM] = useState(carData.motorRPM);
+  const [powerInOut, setPowerInOut] = useState(0);
+  const [motorRPM, setMotorRPM] = useState(0);
   let powerInOutTemp = carData.powerInOut;
-  let motorRPMTemp = carData.motorRPM;
+  let motorRPMTemp = 0;
   const [batteryPercentage, setBatteryPercentage] = useState(carData.batteryPercentage);
   let batteryPercentageTemp = carData.batteryPercentage;
   const [batteryTemp, setBatteryTemp] = useState(carData.batteryTemp);
+  let batteryTempTemp = carData.batteryPercentage;
   const [gearRatio, setGearRatio] = useState(carData.gearRatio);
-  const [motorSpeed, setMotorSpeed] = useState(carData.motorSpeed);
+  const [motorSpeed, setMotorSpeed] = useState(0);
   let motorSpeedTemp;
-  const [chargingOn, setChargingOn] = useState(carData.chargingOn);
+  const [chargingOn, setChargingOn] = useState(false);
   let chargingOnTemp;
   const [rpmInterval, setRPMInterval] = useState(null);
   const [powerInInterval, setPowerInInterval] = useState(null);
   const [powerOutInterval, setPowerOutInterval] = useState(null);
-  //let powerOutIntervalTemp = [];
-  //let powerOutInterval;
+  let rpmIntervalTemp;
+  let powerInIntervalTemp;
+  let powerOutIntervalTemp;
 
   const kW = (value) => {
     return value + ' kW';
@@ -53,44 +54,53 @@ export default function CarUI(data) {
     setMotorSpeed(value);
     motorSpeedTemp = value;
     motorRPMTemp = motorRPM;
-    //batteryPercentageTemp = batteryPercentage;
-    if(rpmInterval) {
-        clearInterval(rpmInterval);
+    batteryPercentageTemp = batteryPercentage;
+    batteryTempTemp = batteryTemp;
+    rpmIntervalTemp = rpmInterval;
+    powerOutIntervalTemp = powerOutInterval;
+    if(rpmIntervalTemp) {
+        clearInterval(rpmIntervalTemp);
     }
-    if(powerOutInterval) {
-        clearInterval(powerOutInterval);
+    if(powerOutIntervalTemp) {
+        clearInterval(powerOutIntervalTemp);
     }
 
     if(motorSpeedTemp > 0) {
-        setRPMInterval(setInterval(increaseDecreaseRPM, 1000));
-        setPowerOutInterval(setInterval(decreaseBattery, 1000));
+        rpmIntervalTemp = setInterval(increaseDecreaseRPM, 1000);
+        powerOutIntervalTemp = setInterval(decreaseBattery, 1000)
+        setRPMInterval(rpmIntervalTemp);
+        setPowerOutInterval(powerOutIntervalTemp);
+        setPowerInOut(-250 * motorSpeedTemp);
+        setBatteryTemp(100 + (25 * motorSpeedTemp));
     } else {
+        setPowerInOut(0);
+        setBatteryTemp(20);
         setMotorRPM(0);
     }
     await updateCar({
         _id: carData._id,
-        motorSpeed: motorSpeedTemp,
+        setBatteryTemp: batteryTempTemp,
     });
   }
 
   const increaseDecreaseRPM = async() => {
     if((motorSpeedTemp == 1 && motorRPMTemp == 200) || (motorSpeedTemp == 2 && motorRPMTemp == 400)
         || (motorSpeedTemp == 3 && motorRPMTemp == 600) || (motorSpeedTemp == 4 && motorRPMTemp == 800)) {
-        clearInterval(rpmInterval);
+        clearInterval(rpmIntervalTemp);
     } else if(motorSpeedTemp == 1 && motorRPMTemp < 200) {
-        motorRPMTemp = motorRPMTemp + 20;
+        motorRPMTemp = motorRPMTemp + 25;
     } else if(motorSpeedTemp == 1 && motorRPMTemp > 200) {
-        motorRPMTemp = motorRPMTemp - 20;
+        motorRPMTemp = motorRPMTemp - 25;
     } else if(motorSpeedTemp == 2 && motorRPMTemp < 400) {
-        motorRPMTemp = motorRPMTemp + 20;
+        motorRPMTemp = motorRPMTemp + 50;
     } else if(motorSpeedTemp == 2 && motorRPMTemp > 400) {
-        motorRPMTemp = motorRPMTemp - 20;
+        motorRPMTemp = motorRPMTemp - 25;
     } else if(motorSpeedTemp == 3 && motorRPMTemp < 600) {
-        motorRPMTemp = motorRPMTemp + 20;
+        motorRPMTemp = motorRPMTemp + 75;
     } else if(motorSpeedTemp == 3 && motorRPMTemp > 600) {
-        motorRPMTemp = motorRPMTemp - 20;
+        motorRPMTemp = motorRPMTemp - 25;
     } else if(motorSpeedTemp == 4 && motorRPMTemp < 800) {
-        motorRPMTemp = motorRPMTemp + 20;
+        motorRPMTemp = motorRPMTemp + 100;
     }
 
     setMotorRPM(motorRPMTemp);
@@ -104,12 +114,22 @@ export default function CarUI(data) {
     chargingOnTemp = !chargingOn;
     setChargingOn(chargingOnTemp);
     batteryPercentageTemp = batteryPercentage;
-    if(powerInInterval) {
-        clearInterval(powerInInterval);
+    powerInIntervalTemp = powerInInterval;
+    rpmIntervalTemp = rpmInterval;
+    powerOutIntervalTemp = powerOutInterval;
+    if(powerInIntervalTemp) {
+        clearInterval(powerInIntervalTemp);
+        setPowerInOut(0);
     }
     
     if(chargingOnTemp) {
-        setPowerInInterval(setInterval(increaseBattery, 1000));
+        powerInIntervalTemp = setInterval(increaseBattery, 1000)
+        setPowerInInterval(powerInIntervalTemp);
+        setPowerInOut(250);
+        setMotorRPM(0);
+        setMotorSpeed(0);
+        clearInterval(rpmIntervalTemp);
+        clearInterval(powerOutIntervalTemp);
     }
   }
 
@@ -148,16 +168,18 @@ export default function CarUI(data) {
   }
 
   const setEmpty = async() => {
-    clearInterval(powerOutInterval);
-    clearInterval(rpmInterval);
+    clearInterval(powerOutIntervalTemp);
+    clearInterval(rpmIntervalTemp);
+
     setMotorSpeed(0);
     setMotorRPM(0);
     setBatteryPercentage(0);
+    setPowerInOut(0);
+    setBatteryTemp(20);
     await updateCar({
         _id: carData._id,
-        motorSpeed: 0,
-        motorRPM: 0,
-        batteryPercentage: 0
+        batteryPercentage: 0,
+        batteryTemp: 20
     });
   }
 
@@ -184,7 +206,7 @@ export default function CarUI(data) {
         <div className="top-container">
           <div className={parkingBreakOn? "parking indicator enabled": "parking indicator"}><LocalParkingIcon/></div>
           <div className={checkEngineOn? "check-engine indicator enabled": "check-engine indicator"}><BuildIcon/></div>
-          <div className={motorHighSpeedOn? "motor-status indicator enabled": "motor-status indicator"}><SystemSecurityUpdateWarningIcon/></div>
+          <div className={motorRPM >= 700? "motor-status indicator enabled": "motor-status indicator"}><SystemSecurityUpdateWarningIcon/></div>
           <div className={batteryPercentage <= 20 ? "battery-low indicator enabled": "battery-low indicator"}><Battery20Icon/></div>
         </div>
         <div className="guages-container">
@@ -277,7 +299,7 @@ export default function CarUI(data) {
             {motorRPM}
           </div>
           <div className="motor-speed meter">
-            <Slider value={motorSpeed} step={1} marks min={0} max={4} onChange={(e) => increaseDecreaseMotorSpeed(e.target.value)}/>
+            <Slider value={motorSpeed} step={1} marks min={0} max={4} onChange={(e) => increaseDecreaseMotorSpeed(e.target.value)} disabled={chargingOn}/>
             {motorSpeed == 0? "OFF" : motorSpeed}
           </div>
         </div>

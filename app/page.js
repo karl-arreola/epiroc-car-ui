@@ -15,9 +15,11 @@ export default async function Home() {
   }
   const car = await getCar();
 
-  return (
-    <main>
-      <CarUI data={car}/>
-    </main>
-  );
+  if(car) {
+    return (
+      <main>
+        <CarUI data={car}/>
+      </main>
+    );
+  }
 }
